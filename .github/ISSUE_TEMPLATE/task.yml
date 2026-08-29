@@ -1,0 +1,113 @@
+name: 작업 요청
+description: 기능, 문서, 테스트, 설정 등 프로젝트 작업을 등록합니다.
+title: "[TASK] "
+labels: []
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        하나의 Issue에는 하나의 작업만 작성해 주세요.
+        선행 작업이 있다면 Issue 번호로 연결하고, 완료 여부를 확인한 뒤 착수합니다.
+
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: 작업 유형
+      description: 작업의 성격과 가장 가까운 항목을 선택해 주세요.
+      options:
+        - 기능
+        - 버그 수정
+        - 문서
+        - 테스트
+        - 리팩터링
+        - 설정 및 환경
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 우선순위
+      description: 다른 작업에 미치는 영향과 마감 일정을 기준으로 선택해 주세요.
+      options:
+        - P0 - 다른 작업보다 먼저 처리해야 함
+        - P1 - 핵심 기능 완성에 필요함
+        - P2 - 핵심 기능 이후 진행 가능함
+    validations:
+      required: true
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: 초기 상태
+      description: 지금 바로 시작할 수 있는지 선택해 주세요.
+      options:
+        - ready - 바로 시작 가능
+        - blocked - 선행 작업 완료 후 시작 가능
+    validations:
+      required: true
+
+  - type: input
+    id: area
+    attributes:
+      label: 작업 영역
+      description: 작업 대상 영역을 짧게 작성해 주세요.
+      placeholder: 예) 인증, 채팅, 데이터베이스, 협업 환경
+    validations:
+      required: true
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: 목표
+      description: 이 작업이 필요한 이유와 달성하려는 결과를 작성해 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: 작업 범위
+      description: 이번 Issue에서 수행할 내용을 체크리스트로 작성해 주세요.
+      value: |
+        - [ ]
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: 선행 작업 및 의존성
+      description: 먼저 완료되어야 하는 Issue와 차단 이유를 작성해 주세요.
+      placeholder: "없음 또는 #이슈번호 - 차단 이유"
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: 완료 조건
+      description: 작업이 완료됐다고 판단할 수 있는 조건을 작성해 주세요.
+      value: |
+        - [ ]
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: 검증 방법
+      description: 완료 조건을 어떻게 확인할지 작성해 주세요.
+      value: |
+        - [ ]
+    validations:
+      required: true
+
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: 제외 범위
+      description: 이번 Issue에서 다루지 않을 내용을 작성해 주세요.
+      placeholder: 없음
