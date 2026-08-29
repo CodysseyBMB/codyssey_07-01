@@ -17,4 +17,3 @@ FastAPI, Jinja2, SQLite 기반 팀 프로젝트 저장소입니다.
 ## 과제 원문
 
 - [Term Project 요구사항](docs/subject.pdf)
-- [Git 협업 참고 과제](docs/02-02.pdf)
