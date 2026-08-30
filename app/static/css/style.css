@@ -1,0 +1,101 @@
+:root {
+  color-scheme: light;
+  font-family:
+    Inter, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #172033;
+  background: #f4f7fb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+.page-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+}
+
+.status-card {
+  width: min(100%, 680px);
+  padding: 48px;
+  border: 1px solid #dfe6f1;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 20px 60px rgb(40 58 89 / 10%);
+}
+
+.status-badge {
+  display: inline-flex;
+  padding: 6px 12px;
+  border-radius: 999px;
+  color: #17663a;
+  background: #e9f8ef;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 20px 0 12px;
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  line-height: 1.1;
+}
+
+.lead {
+  margin: 0;
+  color: #566176;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+
+.endpoint-list {
+  display: grid;
+  gap: 12px;
+  margin: 32px 0 0;
+}
+
+.endpoint-list div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: #f7f9fc;
+}
+
+.endpoint-list dt {
+  color: #566176;
+}
+
+.endpoint-list dd {
+  margin: 0;
+}
+
+.endpoint-list a {
+  color: #2457d6;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.endpoint-list a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 560px) {
+  .status-card {
+    padding: 32px 24px;
+  }
+
+  .endpoint-list div {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
