@@ -61,7 +61,7 @@ OCI 네트워크와 호스트 방화벽에서 TCP 80/443을 허용한다. SSH는
 
 ## 검증과 운영
 
-PR에서는 테스트·빌드만 수행하며 배포 Secret을 사용하지 않는다. main push에서 배포한다. 최초 검증 동안만 feature 브랜치 트리거를 사용했고 PR 최종 상태에서는 제거한다.
+PR에서는 테스트·빌드만 수행하며 배포 Secret을 사용하지 않는다. main push에서 배포한다.
 
 ```bash
 curl --fail https://www.aichat-sample.kro.kr/health
