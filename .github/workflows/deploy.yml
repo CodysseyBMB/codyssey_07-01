@@ -1,0 +1,48 @@
+name: Docker deployment
+
+on:
+  push:
+    branches: [feature/16-docker-deploy]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Run tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Build ARM64 image
+        run: docker build --tag "codyssey-aichat:$GITHUB_SHA" .
+      - name: Deploy and verify
+        if: github.event_name == 'push'
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          task_dir=$(mktemp -d)
+          trap 'rm -rf "$task_dir"' EXIT
+          printf '%s\n' "$DEPLOY_KEY" > "$task_dir/key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$task_dir/known_hosts"
+          docker save "codyssey-aichat:$GITHUB_SHA" | gzip > "$task_dir/image.tar.gz"
+          timeout 600 ssh -T -o BatchMode=yes -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes -o ConnectTimeout=15 \
+            -o "UserKnownHostsFile=$task_dir/known_hosts" -i "$task_dir/key" \
+            "codyssey-deploy@$DEPLOY_HOST" "deploy $GITHUB_SHA" < "$task_dir/image.tar.gz"
+          curl --fail --silent --show-error --retry 12 --retry-all-errors \
+            --retry-delay 5 --max-time 10 https://www.aichat-sample.kro.kr/health
