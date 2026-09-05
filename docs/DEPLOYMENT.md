@@ -17,6 +17,7 @@
 - `/var/lib/codyssey-aichat`: 앱 UID/GID `10001:10001` 소유, 권한 `700`. SQLite 저장 위치.
 - `/opt/codyssey-aichat/app.env`: root 소유, 권한 `600`. 현재 필수 환경 변수 없음. 이후 실제 앱이 지원하는 AI·인증 설정을 여기에 추가한다.
 - `/var/lib/codyssey-caddy/data`, `/var/lib/codyssey-caddy/config`: 인증서 영속 저장 위치.
+- `/opt/codyssey-aichat/proxy.env`: root 소유 `600`, `ACME_EMAIL=인증서 관리자 이메일` 설정. `kro.kr`의 Let's Encrypt 공유 도메인 발급 한도를 피하기 위해 ZeroSSL ACME를 사용한다. Caddy가 이메일로 EAB 등록을 처리한다.
 - 별도 사용자 `codyssey-deploy` 생성. Docker 그룹이나 일반 sudo 권한은 부여하지 않는다.
 - 전용 SSH 키를 생성하고 공개키만 서버에 등록한다. 계정 홈과 `.ssh`는 root 소유 `755`, `authorized_keys`는 root 소유 `644`로 SSH가 읽을 수 있게 한다. 개인키는 서버에 복사하지 않는다.
 
@@ -80,12 +81,3 @@ sudo env APP_IMAGE="$(sudo cat /opt/codyssey-aichat/current-image)" \
 SQLite는 `/var/lib/codyssey-aichat/codyssey.db`에 보존된다. DB 백업은 SQLite backup API 또는 앱 정지 후 파일 복사로 수행한다. 실행 중인 DB 파일만 단순 복사하지 않는다. 이미지 롤백은 DB 스키마를 되돌리지 않으므로 이후 스키마 변경은 별도 검토한다.
 
 이전 이미지는 롤백을 위해 남겨 둔다. 관리자가 `codyssey-aichat` 이미지 중 현재·직전 성공 배포 이외의 불필요한 태그만 정리한다. 기존 Jenkins 등 다른 서비스 이미지를 일괄 정리하지 않는다.
-
-## 과제 종료 후 폐기
-
-1. GitHub 배포 workflow 중지 및 위 Secret 3개 삭제.
-2. 전용 SSH 공개키 제거로 접근 회수.
-3. `codyssey-aichat` 앱과 `codyssey-proxy` Compose 프로젝트만 종료.
-4. 필요한 DB 백업을 보관한 뒤 과제 데이터·인증서·설정 경로 삭제.
-5. 전용 사용자·sudoers·SSH Match 설정 제거, `sshd -t` 후 reload.
-6. 과제 DNS 레코드 제거. 기존 Jenkins·Nginx 및 다른 데이터는 삭제 대상에서 제외.

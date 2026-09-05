@@ -5,6 +5,7 @@ from pathlib import Path
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 SCRIPT = Path(__file__).resolve().parents[1] / "deploy" / "deploy.py"
@@ -37,6 +38,42 @@ class DeploymentArchiveTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.deploy.validate_archive(path, REVISION)
 
+    def test_rejects_unsafe_tar_members(self):
+        for name, kind in [("../manifest.json", tarfile.REGTYPE),
+                           ("/manifest.json", tarfile.REGTYPE),
+                           ("manifest.json", tarfile.SYMTYPE)]:
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / "image.tar.gz"
+                with tarfile.open(path, "w:gz") as archive:
+                    info = tarfile.TarInfo(name)
+                    info.type = kind
+                    archive.addfile(info)
+                with self.assertRaises(ValueError):
+                    self.deploy.validate_archive(path, REVISION)
+
+    def test_upload_size_limit(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(self.deploy, "MAX_UPLOAD", 4):
+            with self.assertRaises(ValueError):
+                self.deploy.receive_archive(io.BytesIO(b"12345"), Path(directory) / "image")
+
+    def test_failed_rollout_restores_previous_image(self):
+        with tempfile.TemporaryDirectory() as directory:
+            current = Path(directory) / "current-image"
+            current.write_text("codyssey-aichat:previous\n")
+            failure = self.deploy.subprocess.CalledProcessError(1, "docker")
+            with patch.object(self.deploy, "start_image", side_effect=[failure, None]) as start:
+                with self.assertRaises(self.deploy.subprocess.CalledProcessError):
+                    self.deploy.activate_image("codyssey-aichat:new", current)
+                self.assertEqual(start.call_args_list[1].args, ("codyssey-aichat:previous",))
+            self.assertEqual(current.read_text(), "codyssey-aichat:previous\n")
+
+    def test_successful_rollout_records_image(self):
+        with tempfile.TemporaryDirectory() as directory:
+            current = Path(directory) / "current-image"
+            with patch.object(self.deploy, "start_image"):
+                self.deploy.activate_image("codyssey-aichat:new", current)
+            self.assertEqual(current.read_text(), "codyssey-aichat:new\n")
+
     def test_rejects_non_commit_arguments(self):
         for revision in ["latest", "a" * 39, "a" * 40 + ";id", "../main"]:
             with self.subTest(revision=revision), self.assertRaises(ValueError):
@@ -52,6 +89,19 @@ class DeploymentArchiveTests(unittest.TestCase):
             with tarfile.open(path, "w:gz") as archive:
                 for _ in range(2):
                     info = tarfile.TarInfo("manifest.json")
+                    info.size = len(payload)
+                    archive.addfile(info, io.BytesIO(payload))
+            with self.assertRaises(ValueError):
+                self.deploy.validate_archive(path, REVISION)
+
+    def test_rejects_manifest_path_alias(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "image.tar.gz"
+            with tarfile.open(path, "w:gz") as archive:
+                for name, tags in [("manifest.json", [f"codyssey-aichat:{REVISION}"]),
+                                   ("./manifest.json", ["nginx:latest"])]:
+                    payload = json.dumps([{"RepoTags": tags}]).encode()
+                    info = tarfile.TarInfo(name)
                     info.size = len(payload)
                     archive.addfile(info, io.BytesIO(payload))
             with self.assertRaises(ValueError):
