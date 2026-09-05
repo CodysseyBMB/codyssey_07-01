@@ -1,0 +1,20 @@
+name: codyssey-aichat
+services:
+  app:
+    image: ${APP_IMAGE:?APP_IMAGE is required}
+    pull_policy: never
+    restart: unless-stopped
+    user: "10001:10001"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128
+    mem_limit: 512m
+    cpus: 0.75
+    env_file: /opt/codyssey-aichat/app.env
+    ports: ["127.0.0.1:18000:8000"]
+    volumes: ["/var/lib/codyssey-aichat:/app/data"]
+    tmpfs: ["/tmp:size=64m,mode=1777"]
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
