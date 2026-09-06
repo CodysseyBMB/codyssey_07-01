@@ -1,3 +1,7 @@
 fastapi
 jinja2
 uvicorn[standard]
+pwdlib[argon2]
+python-multipart
+itsdangerous
+python-dotenv

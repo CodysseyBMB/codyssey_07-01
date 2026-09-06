@@ -1,16 +1,32 @@
 {% extends "base.html" %}
 
-{% block title %}{{ project_name }} · 프로젝트 준비 완료{% endblock %}
+{% block title %}{{ project_name }} · 인증 기능{% endblock %}
 
 {% block content %}
   <main class="page-shell">
     <section class="status-card" aria-labelledby="page-title">
-      <span class="status-badge">Scaffolding ready</span>
-      <h1 id="page-title">{{ project_name }}</h1>
-      <p class="lead">
-        FastAPI와 Jinja2 기본 구성이 완료되었습니다. 이후 인증, 채팅,
-        AI API 기능을 이 구조 위에 추가합니다.
-      </p>
+      {% if current_user %}
+        <span class="status-badge">Signed in</span>
+        <h1 id="page-title">{{ current_user.username }}님, 반갑습니다.</h1>
+        <p class="lead">
+          로그인 상태가 정상적으로 유지되고 있습니다. 채팅 기능은 다음 단계에서
+          이 인증 정보와 연결합니다.
+        </p>
+        <form class="inline-form" method="post" action="/logout">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+          <button class="button button-secondary" type="submit">로그아웃</button>
+        </form>
+      {% else %}
+        <span class="status-badge">Authentication ready</span>
+        <h1 id="page-title">{{ project_name }}</h1>
+        <p class="lead">
+          계정을 만들고 로그인하여 인증 기능이 정상적으로 동작하는지 확인해 보세요.
+        </p>
+        <div class="button-row">
+          <a class="button button-primary" href="/signup">회원가입</a>
+          <a class="button button-secondary" href="/login">로그인</a>
+        </div>
+      {% endif %}
 
       <dl class="endpoint-list">
         <div>
