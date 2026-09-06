@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}{{ status_code }} · {{ project_name }}{% endblock %}
+
+{% block content %}
+  <main class="page-shell">
+    <section class="auth-card" aria-labelledby="page-title">
+      <p class="eyebrow">Error {{ status_code }}</p>
+      <h1 id="page-title">{{ title }}</h1>
+      <p class="lead" role="alert">{{ message }}</p>
+      <div class="button-row">
+        <a class="button button-primary" href="/">메인으로 돌아가기</a>
+      </div>
+    </section>
+  </main>
+{% endblock %}
