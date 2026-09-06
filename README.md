@@ -165,6 +165,10 @@ DB 스키마는 기본키, 필수값, 로그인 아이디 고유성과 생성 �
 
 자세한 작업 절차는 [협업 규칙](docs/CONTRIBUTING.md)을 확인합니다.
 
+## 운영 배포
+
+Docker·GitHub Actions 배포 절차는 [배포 문서](docs/DEPLOYMENT.md)를 참고합니다.
+
 ## 과제 원문
 
 - [Term Project 요구사항](docs/subject.pdf)

@@ -1,0 +1,9 @@
+www.aichat-sample.kro.kr {
+    tls {
+        issuer acme {
+            dir https://acme.zerossl.com/v2/DV90
+            email {$ACME_EMAIL}
+        }
+    }
+    reverse_proxy 127.0.0.1:18000
+}
