@@ -202,6 +202,26 @@ class AuthRouteTests(unittest.TestCase):
                 self.assertEqual(response.status_code, 303)
                 self.assertEqual(response.headers["location"], "/")
 
+    def test_pages_use_same_origin_stylesheet_path(self) -> None:
+        for path in ("/", "/signup", "/login"):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertIn(
+                    'href="/static/css/style.css"',
+                    response.text,
+                )
+                self.assertNotRegex(
+                    response.text,
+                    r'href="https?://[^\"]+/static/css/style\.css"',
+                )
+
+        stylesheet_response = self.client.get("/static/css/style.css")
+        self.assertEqual(stylesheet_response.status_code, 200)
+        self.assertTrue(
+            stylesheet_response.headers["content-type"].startswith("text/css")
+        )
+
     def test_create_app_rejects_short_session_secret(self) -> None:
         with self.assertRaises(RuntimeError):
             create_app(
