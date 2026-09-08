@@ -93,9 +93,9 @@ git check-ignore .env
 4. `executescript()`가 스키마 SQL을 실행해 필요한 테이블과 제약조건을
    생성합니다.
 
-현재 스키마 SQL에는 `CREATE TABLE IF NOT EXISTS users`만 정의되어 있으므로
-실제 DB에도 애플리케이션 테이블은 `users` 하나만 생성됩니다. DB가 이미 있으면
-같은 파일을 사용하며, `IF NOT EXISTS`에 의해 기존 테이블과 데이터는 유지됩니다.
+현재 스키마 SQL에는 `users`와 `chats` 테이블, 그리고 사용자별 대화 조회용
+인덱스가 정의되어 있습니다. DB가 이미 있으면 같은 파일을 사용하며,
+`IF NOT EXISTS`에 의해 기존 테이블과 데이터는 유지됩니다.
 
 서버를 실행하지 않고 DB만 초기화하려면 저장소 루트에서 다음 명령을 실행합니다.
 
@@ -108,6 +108,7 @@ python3 -c "from app.database import init_db; init_db()"
 ```bash
 sqlite3 data/codyssey.db ".tables"
 sqlite3 data/codyssey.db ".schema users"
+sqlite3 data/codyssey.db ".schema chats"
 ```
 
 현재 `users` 테이블은 다음 정보를 저장합니다.
@@ -117,11 +118,24 @@ sqlite3 data/codyssey.db ".schema users"
 - 평문이 아닌 비밀번호 해시
 - UTC 기준 계정 생성 시각
 
+`chats` 테이블은 다음 정보를 저장합니다.
+
+- 자동 생성되는 대화 식별자
+- 대화를 남긴 사용자 식별자
+- 사용자 질문과 AI 응답
+- UTC 기준 대화 생성 시각
+
+사용자가 삭제되면 그 사용자의 대화도 함께 삭제되며, 사용자별 최근 대화를
+빠르게 조회하기 위해 `(user_id, created_at)` 인덱스를 둡니다.
+
 DB 스키마는 기본키, 필수값, 로그인 아이디 고유성과 생성 시각 기본값처럼
 데이터 무결성에 필요한 제약만 담당합니다. 로그인 아이디의 길이·허용 문자와
 비밀번호 정책 및 해시 생성·검증은 인증 서비스에서 처리합니다.
 
 로컬 SQLite DB와 관련 임시 파일은 Git 추적 대상에서 제외됩니다.
+
+ERD와 테이블별 컬럼 정의, 인덱스와 정렬 기준을 그렇게 정한 이유는
+[데이터베이스 구조와 설계 근거](docs/DATABASE.md)에 정리되어 있습니다.
 
 기본 화면이 보이지 않거나 요청에 실패한다면 다음 항목을 확인합니다.
 
